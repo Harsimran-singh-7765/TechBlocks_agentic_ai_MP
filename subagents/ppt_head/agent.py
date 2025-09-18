@@ -13,10 +13,10 @@ from subagents.ppt_worker_1.agent import ppt_worker_1
 from subagents.ppt_worker_2.agent import ppt_worker_2
 from subagents.ppt_worker_3.agent import ppt_worker_3
 from subagents.ppt_worker_4.agent import ppt_worker_4
- from subagents.ppt_worker_5.agent import ppt_worker_5
- from subagents.ppt_worker_6.agent import ppt_worker_6
- from subagents.ppt_worker_7.agent import ppt_worker_7
- from subagents.ppt_worker_8.agent import ppt_worker_8
+#from subagents.ppt_worker_5.agent import ppt_worker_5
+#from subagents.ppt_worker_6.agent import ppt_worker_6
+#from subagents.ppt_worker_7.agent import ppt_worker_7
+#from subagents.ppt_worker_8.agent import ppt_worker_8
 
 # 📂 Import save_ppt tool
 from .tools.ppt_tool import save_ppt
@@ -32,10 +32,10 @@ ppt_workers = ParallelAgent(
         ppt_worker_2,
         ppt_worker_3,
         ppt_worker_4,
-        ppt_worker_5,
-        ppt_worker_6,
-        ppt_worker_7,
-        ppt_worker_8,
+        #ppt_worker_5,
+        #ppt_worker_6,
+        #ppt_worker_7,
+        #ppt_worker_8,
     ],
 )
 
