@@ -1,0 +1,266 @@
+manifest:
+  version: "0.1.3"
+  schema: https://a2as.org/cert/schema
+  subject:
+    name: harsimran-singh-7765/techblocks_agentic_ai_mp
+    source: https://github.com/harsimran-singh-7765/techblocks_agentic_ai_mp
+    branch: master
+    commit: "66f64595"
+    scope: [manager/agent.py, subagents/RoadMap_generator/agent.py, subagents/drafter/agent.py, subagents/idea_analyzer/agent.py,
+      subagents/idea_evaluator/agent.py, subagents/ppt_head/agent.py, subagents/ppt_head/tools/ppt_tool.py, subagents/ppt_worker_1/agent.py,
+      subagents/ppt_worker_1/tools/ppt_tool.py, subagents/ppt_worker_2/agent.py, subagents/ppt_worker_2/tools/ppt_tool.py,
+      subagents/ppt_worker_3/agent.py, subagents/ppt_worker_3/tools/ppt_tool.py, subagents/ppt_worker_4/agent.py, subagents/ppt_worker_4/tools/ppt_tool.py,
+      subagents/theme_analyser/agent.py]
+  issued:
+    by: A2AS.org
+    at: '2026-02-11T16:33:48Z'
+    url: https://a2as.org/certified/agents/harsimran-singh-7765/techblocks_agentic_ai_mp
+  signatures:
+    digest: sha256:4YlduB8FER1G7aw7tLddRsV1AcXSntZiLSIa85DADAI
+    key: ed25519:cq8lHQj6dGpqiMmnW5erHDdnLY9lcJH2tLZVG87gNMs
+    sig: ed25519:fqKtHHHdpzuETFdlzMfadWH9MnVFy4b6HvxxE5CHkTY4FSwwU4Q30ASePd3kW_MINvR7STyJH9Fhagdn_jfCCw
+
+agents:
+  drafter:
+    type: instance
+    params:
+      name: drafter
+      description: "\n    Drafter agent documents the user’s idea into actionable formats.\n    It runs parallel agents to\
+        \ generate:\n    - A roadmap of the project\n    - A draft PowerPoint presentation structure\n    "
+      sub_agents: [RoadMap_generator, ppt_head]
+  idea_analyzer:
+    type: instance
+    models: [gemini-2.0-flash]
+    params:
+      name: idea_analyzer
+      description: Analyzes and breaks down hackathon ideas into their core components like problem, solution, and features.
+      instruction: [Your primary role is to dissect and analyze a given hackathon idea., You must not evaluate or judge the
+          idea's quality. Your task is to simply break it down into its constituent parts for the evaluator., 'Follow these
+          steps meticulously:', '1.  **Problem Statement:** Clearly identify and articulate the core problem the idea intends
+          to solve.', '2.  **Proposed Solution:** Describe the main functionality of the proposed solution.', '3.  **Target
+          Audience:** Define who the intended users or beneficiaries of this solution are.', '4.  **Key Features:** List the
+          3-5 most critical features required for a minimum viable product (MVP).', '5.  **Technical Stack (Optional):** If
+          mentioned, list the potential technologies (languages, frameworks, APIs).', 'Present your final analysis in a structured,
+          easy-to-read markdown format.']
+      output_key: idea
+  idea_evaluator:
+    type: instance
+    models: [gemini-2.0-flash]
+    params:
+      name: idea_evaluator
+      description: Evaluates analyzed hackathon ideas based on innovation, feasibility, and impact.
+      instruction: [Your role is to critically evaluate an analyzed hackathon idea based on a defined set of criteria., You
+          will receive a structured breakdown of an idea. Your task is to score it and provide a final verdict., 'Use the
+          following criteria for your evaluation, scoring each from 1 (poor) to 10 (excellent):', '1.  **Innovation & Originality:**
+          How unique or novel is this concept?', '2.  **Technical Feasibility:** How practical is it to build a working prototype
+          during the hackathon?', '3.  **Impact & Value:** How significant is the problem it solves and how valuable is the
+          proposed solution?', '4.  **Theme Alignment:** How well does the idea align with the hackathon''s central theme?',
+        'After scoring, provide a summary of the idea''s main strengths and weaknesses.', 'Conclude with a single, clear recommendation:
+          ''PROCEED'', ''REVISE'', or ''REJECT''.']
+  Idea_forge:
+    type: instance
+    params:
+      name: Idea_forge
+      description: Loop to suggest or refine ideas , output will be list of possible ideas with a brief explanation and techstack.
+      sub_agents: [idea_analyzer, idea_evaluator]
+      max_iterations: "2"
+  ppt_head:
+    type: instance
+    params:
+      name: ppt_head
+      description: Coordinates PowerPoint draft creation by first delegating slide generation, then saving the result.
+      sub_agents: [ppt_workers]
+  ppt_saver:
+    type: instance
+    models: [gemini-2.0-flash]
+    tools: [save_ppt]
+    params:
+      name: ppt_saver
+      description: Responsible for saving the final PowerPoint after all slides are added.
+      instruction: ['Once all slides are ready, call the save_ppt tool to save the presentation.']
+  ppt_worker_1:
+    type: instance
+    models: [gemini-2.0-flash]
+    params:
+      name: ppt_worker_1
+      description: Generates Title & Introduction slide.
+      instruction: worker_instructions
+  ppt_worker_2:
+    type: instance
+    models: [gemini-2.0-flash]
+    params:
+      name: ppt_worker_2
+      description: Generates Title & Introduction slide.
+      instruction: worker_instructions
+  ppt_worker_3:
+    type: instance
+    models: [gemini-2.0-flash]
+    params:
+      name: ppt_worker_3
+      description: Generates Title & Introduction slide.
+      instruction: worker_instructions
+  ppt_worker_4:
+    type: instance
+    models: [gemini-2.0-flash]
+    params:
+      name: ppt_worker_4
+      description: Generates Title & Introduction slide.
+      instruction: worker_instructions
+  ppt_workers:
+    type: instance
+    params:
+      name: ppt_workers
+      description: All workers generate their own slides simultaneously.
+      sub_agents: [ppt_worker_1, ppt_worker_2, ppt_worker_3, ppt_worker_4]
+  RoadMap_generator:
+    type: instance
+    models: [gemini-2.0-flash]
+    params:
+      name: RoadMap_generator
+      description: Generates a step-by-step roadmap for implementing the user’s hackathon project.
+      instruction: roadmap_instructions
+  root_agent:
+    type: instance
+    models: [gemini-2.0-flash]
+    params:
+      name: Hack_Mate
+      description: "\n    You are **Hackmate**, the manager of the Hackathon Helper Assistant, built at IEEE TechBlocks 11.1.\
+        \  \nYour role is to oversee and coordinate the specialized sub-agents to help participants during hackathons.  \n\
+        analyse user prompt and user transfer to agent only if needed \n"
+      instruction: manager_instructions
+      sub_agents: [theme_analyser, Idea_forge, drafter]
+  theme_analyser:
+    type: instance
+    models: [gemini-2.0-flash]
+    params:
+      name: theme_analyser
+      description: Analyzes hackathon themes and ensures they are relevant, engaging, and impactful.
+      instruction: instructions
+
+models:
+  gemini-2.0-flash:
+    type: literal
+    agents: [theme_analyser, idea_analyzer, RoadMap_generator, ppt_worker_4, ppt_worker_2, idea_evaluator, root_agent, ppt_saver,
+      ppt_worker_3, ppt_worker_1]
+
+tools:
+  save_ppt:
+    type: function
+    agents: [ppt_saver]
+    params:
+      description: Save the final PPT.
+
+teams:
+  drafter:
+    type: parallel
+    agents: [drafter, RoadMap_generator, ppt_head]
+  ppt_head:
+    type: sequential
+    agents: [ppt_head, ppt_workers]
+  ppt_workers:
+    type: parallel
+    agents: [ppt_workers, ppt_worker_1, ppt_worker_2, ppt_worker_3, ppt_worker_4]
+  root_agent:
+    type: hierarchy
+    agents: [root_agent, theme_analyser, Idea_forge, drafter]
+
+imports:
+  add_slide: tools.ppt_tool.add_slide
+  Agent: google.adk.agents.Agent
+  agent: agent
+  AgentTool: google.adk.tools.agent_tool.AgentTool
+  drafter: subagents.drafter.agent.drafter
+  idea_analyzer: subagents.idea_analyzer.agent.idea_analyzer
+  idea_evaluator: subagents.idea_evaluator.agent.idea_evaluator
+  LoopAgent: google.adk.agents.LoopAgent
+  os: os
+  ParallelAgent: google.adk.agents.ParallelAgent
+  PP_ALIGN: pptx.enum.text.PP_ALIGN
+  ppt_head: subagents.ppt_head.agent.ppt_head
+  ppt_worker_1: subagents.ppt_worker_1.agent.ppt_worker_1
+  ppt_worker_2: subagents.ppt_worker_2.agent.ppt_worker_2
+  ppt_worker_3: subagents.ppt_worker_3.agent.ppt_worker_3
+  ppt_worker_4: subagents.ppt_worker_4.agent.ppt_worker_4
+  Presentation: pptx.Presentation
+  Pt: pptx.util.Pt
+  RoadMap_generator: subagents.RoadMap_generator.agent.RoadMap_generator
+  save_ppt: tools.ppt_tool.save_ppt
+  SequentialAgent: google.adk.agents.SequentialAgent
+  theme_analyser: subagents.theme_analyser.agent.theme_analyser
+
+functions:
+  add_slide:
+    type: sync
+    module: subagents.ppt_worker_4.tools.ppt_tool
+    args: [title, bullets]
+  save_ppt:
+    type: sync
+    module: subagents.ppt_worker_4.tools.ppt_tool
+    args: [filepath]
+
+files:
+  drafter.txt:
+    type: pattern
+    actions: [read]
+    params:
+      caller: [os.path.join]
+      pattern: [BASE_DIR, drafter.txt]
+  filepath:
+    type: variable
+    actions: [read]
+    params:
+      caller: [prs.save]
+  manager.txt:
+    type: pattern
+    actions: [read]
+    params:
+      caller: [os.path.join]
+      pattern: [BASE_DIR, manager.txt]
+  ppt_head.txt:
+    type: pattern
+    actions: [read]
+    params:
+      caller: [os.path.join]
+      pattern: [BASE_DIR, ppt_head.txt]
+  ppt_worker_1.txt:
+    type: pattern
+    actions: [read]
+    params:
+      caller: [os.path.join]
+      pattern: [BASE_DIR, ppt_worker_1.txt]
+  ppt_worker_2.txt:
+    type: pattern
+    actions: [read]
+    params:
+      caller: [os.path.join]
+      pattern: [BASE_DIR, ppt_worker_2.txt]
+  ppt_worker_3.txt:
+    type: pattern
+    actions: [read]
+    params:
+      caller: [os.path.join]
+      pattern: [BASE_DIR, ppt_worker_3.txt]
+  ppt_worker_4.txt:
+    type: pattern
+    actions: [read]
+    params:
+      caller: [os.path.join]
+      pattern: [BASE_DIR, ppt_worker_4.txt]
+  RoadMap_generator.txt:
+    type: pattern
+    actions: [read]
+    params:
+      caller: [os.path.join]
+      pattern: [BASE_DIR, RoadMap_generator.txt]
+  theme_analyser.txt:
+    type: pattern
+    actions: [read]
+    params:
+      caller: [os.path.join]
+      pattern: [BASE_DIR, theme_analyser.txt]
+  TXT_PATH:
+    type: variable
+    actions: [read]
+    params:
+      caller: [open]
+      alias: [f]
